@@ -40,8 +40,18 @@
     (.execute connection "insert into person (name, phone) values (?, ?)" params)
   True))
 
+(defn display-row [row]
+  (print (get row 0) (get row 1) (get row 2)))
+
 (defn search-person [connection]
-  (print "search")
+  (print "********************")
+  (print "    search person")
+  (print "")
+  (let [[search-term (+ "%" (raw-input "enter name or phone number: ") "%")]
+        [search-param (, search-term search-term)]
+        [rows (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))]]
+    (for (row rows) (display-row row))
+)
   True)
 
 (defn edit-person [connection]
