@@ -30,7 +30,35 @@
   (.execute connection "create table if not exists person (name text not null, phone text)")
   (get [connection] 0))
 
-(defn main-menu []
+(defn add-person [connection]
+  (print "add person")
+  True)
+
+(defn search-person [connection]
+  (print "search")
+  True)
+
+(defn edit-person [connection]
+  (print "edit")
+  True)
+
+(defn delete-person [connection]
+  (print "delete")
+  True)
+
+(defn quit [connection]
+  (print "quit")
+  False)
+
+(defn main-loop [connection]
+  (while (main-menu connection) []))
+
+(defn main-menu [connection]
+  (let [[menu-choices {"1" add-person
+                       "2" search-person
+                       "3" edit-person
+                       "4" delete-person
+                       "5" quit}]]
   (print "********************")
   (print "     register")
   (print "")
@@ -39,8 +67,14 @@
   (print "3. edit person")
   (print "4. delete person")
   (print "5. quit")
-  (print (raw-input "make a selection: ")))
+  (print "")
+  (try  
+    (let [[selection (get menu-choices (raw-input "make a selection: "))]]
+      (selection connection))
+    (catch [e KeyError] (print "Please choose between 1 and 5") True)
+)))
 
 (if (= __name__ "__main__")
-  (let [[connection (create-schema (get-connection))]]))
+  (let [[connection (create-schema (get-connection))]]
+    (main-loop connection)))
 
