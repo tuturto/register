@@ -71,8 +71,7 @@
   (try  
     (let [[selection (get menu-choices (raw-input "make a selection: "))]]
       (selection connection))
-    (catch [e KeyError] (print "Please choose between 1 and 5") True)
-)))
+    (catch [e KeyError] (print "Please choose between 1 and 5") True))))
 
 (if (= __name__ "__main__")
   (let [[connection (create-schema (get-connection))]]
