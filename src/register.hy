@@ -31,8 +31,14 @@
   (get [connection] 0))
 
 (defn add-person [connection]
-  (print "add person")
-  True)
+  (print "********************")
+  (print "    add person")
+  (print "")
+  (let [[person-name (raw-input "enter name: ")]
+        [phone-number (raw-input "enter phone number: ")]
+        [params (, person-name phone-number)]]
+    (.execute connection "insert into person (name, phone) values (?, ?)" params)
+  True))
 
 (defn search-person [connection]
   (print "search")
