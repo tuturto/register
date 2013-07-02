@@ -55,7 +55,16 @@
   True)
 
 (defn edit-person [connection]
-  (print "edit")
+  (print "********************")
+  (print "     edit person")
+  (print "")
+  (let [[person-id (raw-input "enter id of person to edit: ")]
+        [row (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))]]
+    (if row (do 
+        (print "found person")
+        (display-row row))
+      (print "could not find a person with that id")
+))
   True)
 
 (defn delete-person [connection]
