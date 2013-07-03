@@ -24,7 +24,7 @@
     (let [[connection (.connect sqlite3 "register.db")]]
       (setv connection.row-factory sqlite3.Row)
       (setv connection.isolation-level None)
-    (get [connection] 0))))
+      connection)))
 
 (defn create-schema [connection]
   (.execute connection "create table if not exists person (name text not null, phone text)")
@@ -50,8 +50,7 @@
   (let [[search-term (+ "%" (raw-input "enter name or phone number: ") "%")]
         [search-param (, search-term search-term)]
         [rows (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))]]
-    (for (row rows) (display-row row))
-)
+    (for (row rows) (display-row row)))
   True)
 
 (defn edit-person [connection]
@@ -63,8 +62,7 @@
     (if row (do 
         (print "found person")
         (display-row row))
-      (print "could not find a person with that id")
-))
+      (print "could not find a person with that id")))
   True)
 
 (defn delete-person [connection]
