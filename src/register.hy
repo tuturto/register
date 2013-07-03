@@ -48,9 +48,8 @@
 
 (defn query-person [connection search-criteria]
   (let [[search-term (+ "%" search-criteria "%")]
-        [search-param (, search-term search-term)]
-        [rows (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))]]
-    rows))
+        [search-param (, search-term search-term)]]
+    (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))))
 
 (defn search-person [connection]
   (print "********************")
@@ -87,11 +86,8 @@
   True)
 
 (defn quit [connection]
-  (print "quit")
+  (.close connection)
   False)
-
-(defn main-loop [connection]
-  (while (main-menu connection) []))
 
 (defn main-menu [connection]
   (let [[menu-choices {"1" add-person
@@ -115,5 +111,5 @@
 
 (if (= __name__ "__main__")
   (let [[connection (create-schema (get-connection))]]
-    (main-loop connection)))
+    (while (main-menu connection) [])))
 
