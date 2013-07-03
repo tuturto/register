@@ -61,7 +61,13 @@
         [row (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))]]
     (if row (do 
         (print "found person")
-        (display-row row))
+        (display-row row)
+        (let [[new-name (raw-input "enter new name or press enter: ")]
+              [new-phone (raw-input "enter new phone or press enter: ")]
+              [params (, (if new-name new-name (get row 1))
+                         (if new-phone new-phone (get row 2))
+                         (get row 0))]]
+          (.execute connection "update person set name=?, phone=? where OID=?" params)))
       (print "could not find a person with that id")))
   True)
 
