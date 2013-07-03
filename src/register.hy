@@ -30,27 +30,34 @@
   (.execute connection "create table if not exists person (name text not null, phone text)")
   (get [connection] 0))
 
+(defn insert-person [connection person-name phone-number]
+  (let [[params (, person-name phone-number)]]
+    (.execute connection "insert into person (name, phone) values (?, ?)" params)))
+
 (defn add-person [connection]
   (print "********************")
   (print "    add person")
   (print "")
   (let [[person-name (raw-input "enter name: ")]
-        [phone-number (raw-input "enter phone number: ")]
-        [params (, person-name phone-number)]]
-    (.execute connection "insert into person (name, phone) values (?, ?)" params)
+        [phone-number (raw-input "enter phone number: ")]]
+    (insert-person connection person-name phone-number)
   True))
 
 (defn display-row [row]
   (print (get row 0) (get row 1) (get row 2)))
 
+(defn query-person [connection search-criteria]
+  (let [[search-term (+ "%" search-criteria "%")]
+        [search-param (, search-term search-term)]
+        [rows (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))]]
+    rows))
+
 (defn search-person [connection]
   (print "********************")
   (print "    search person")
   (print "")
-  (let [[search-term (+ "%" (raw-input "enter name or phone number: ") "%")]
-        [search-param (, search-term search-term)]
-        [rows (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))]]
-    (for (row rows) (display-row row)))
+  (let [[search-criteria (raw-input "enter name or phone number: ")]]
+    (for (row (query-person connection search-criteria)) (display-row row)))
   True)
 
 (defn edit-person [connection]
