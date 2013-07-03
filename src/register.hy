@@ -72,7 +72,11 @@
   True)
 
 (defn delete-person [connection]
-  (print "delete")
+  (print "********************")
+  (print "   delete person")
+  (print "")
+  (let [[person-id (raw-input "enter id of person to delete: ")]]
+        (.execute connection "delete from person where OID=?" person-id))
   True)
 
 (defn quit [connection]
