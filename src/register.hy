@@ -42,6 +42,9 @@
   (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))
 )
 
+(defn delete-person [connection person-id]
+  (.execute connection "delete from person where OID=?" person-id))
+
 (defn update-person [connection name phone id]
   (let [[params (, name phone id)]]
     (.execute connection "update person set name=?, phone=? where OID=?" params)))
@@ -81,12 +84,12 @@
       (print "could not find a person with that id")))
   True)
 
-(defn delete-person [connection]
+(defn remove-person [connection]
   (print "********************")
   (print "   delete person")
   (print "")
   (let [[person-id (raw-input "enter id of person to delete: ")]]
-        (.execute connection "delete from person where OID=?" person-id))
+    (delete-person connection person-id))
   True)
 
 (defn quit [connection]
@@ -97,7 +100,7 @@
   (let [[menu-choices {"1" add-person
                        "2" search-person
                        "3" edit-person
-                       "4" delete-person
+                       "4" remove-person
                        "5" quit}]]
   (print "********************")
   (print "     register")
