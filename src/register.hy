@@ -39,8 +39,7 @@
     (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))))
 
 (defn load-person [connection person-id]
-  (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))
-)
+  (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id)))
 
 (defn delete-person [connection person-id]
   (.execute connection "delete from person where OID=?" person-id))
@@ -56,7 +55,7 @@
   (let [[person-name (raw-input "enter name: ")]
         [phone-number (raw-input "enter phone number: ")]]
     (insert-person connection person-name phone-number)
-  True))
+    True))
 
 (defn display-row [row]
   (print (get row 0) (get row 1) (get row 2)))
@@ -74,14 +73,14 @@
   (print "     edit person")
   (print "")
   (let [[person-id (raw-input "enter id of person to edit: ")]
-        [row (load-person connection person-id)]]
+	[row (load-person connection person-id)]]
     (if row (do 
-        (print "found person")
-        (display-row row)
-        (let [[new-name (raw-input "enter new name or press enter: ")]
-              [new-phone (raw-input "enter new phone or press enter: ")]]
-          (update-person connection (if new-name new-name (get row 1)) (if new-phone new-phone (get row 2)) (get row 0))))
-      (print "could not find a person with that id")))
+	     (print "found person")
+	     (display-row row)
+	     (let [[new-name (raw-input "enter new name or press enter: ")]
+		   [new-phone (raw-input "enter new phone or press enter: ")]]
+	       (update-person connection (if new-name new-name (get row 1)) (if new-phone new-phone (get row 2)) (get row 0))))
+	(print "could not find a person with that id")))
   True)
 
 (defn remove-person [connection]
@@ -98,25 +97,25 @@
 
 (defn main-menu [connection]
   (let [[menu-choices {"1" add-person
-                       "2" search-person
-                       "3" edit-person
-                       "4" remove-person
-                       "5" quit}]]
-  (print "********************")
-  (print "     register")
-  (print "")
-  (print "1. add new person")
-  (print "2. search")
-  (print "3. edit person")
-  (print "4. delete person")
-  (print "5. quit")
-  (print "")
-  (try  
-    (let [[selection (get menu-choices (raw-input "make a selection: "))]]
-      (selection connection))
-    (catch [e KeyError] (print "Please choose between 1 and 5") True))))
+			   "2" search-person
+			   "3" edit-person
+			   "4" remove-person
+			   "5" quit}]]
+    (print "********************")
+    (print "     register")
+    (print "")
+    (print "1. add new person")
+    (print "2. search")
+    (print "3. edit person")
+    (print "4. delete person")
+    (print "5. quit")
+    (print "")
+    (try  
+     (let [[selection (get menu-choices (raw-input "make a selection: "))]]
+       (selection connection))
+     (catch [e KeyError] (print "Please choose between 1 and 5") True))))
 
 (if (= __name__ "__main__")
   (let [[connection (create-schema (get-connection))]]
     (while (main-menu connection) [])))
-
+ 
