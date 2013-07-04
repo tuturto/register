@@ -23,11 +23,7 @@
 (.append sys.path (.abspath os.path "."))
 
 (defn get-connection []
-  (do
-    (let [[connection (.connect sqlite3 "register.db")]]
-      (setv connection.row-factory sqlite3.Row)
-      (setv connection.isolation-level None)
-      connection)))
+  (.connect sqlite3 "register.db"))
 
 (defn create-schema [connection]
   (.execute connection "create table if not exists person (name text not null, phone text)")
@@ -41,6 +37,14 @@
   (let [[search-term (+ "%" search-criteria "%")]
         [search-param (, search-term search-term)]]
     (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))))
+
+(defn load-person [connection person-id]
+  (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))
+)
+
+(defn update-person [connection name phone id]
+  (let [[params (, name phone id)]]
+    (.execute connection "update person set name=?, phone=? where OID=?" params)))
 
 (defn add-person [connection]
   (print "********************")
@@ -62,10 +66,6 @@
     (for (row (query-person connection search-criteria)) (display-row row)))
   True)
 
-(defn load-person [connection person-id]
-  (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))
-)
-
 (defn edit-person [connection]
   (print "********************")
   (print "     edit person")
@@ -76,11 +76,8 @@
         (print "found person")
         (display-row row)
         (let [[new-name (raw-input "enter new name or press enter: ")]
-              [new-phone (raw-input "enter new phone or press enter: ")]
-              [params (, (if new-name new-name (get row 1))
-                         (if new-phone new-phone (get row 2))
-                         (get row 0))]]
-          (.execute connection "update person set name=?, phone=? where OID=?" params)))
+              [new-phone (raw-input "enter new phone or press enter: ")]]
+          (update-person connection (if new-name new-name (get row 1)) (if new-phone new-phone (get row 2)) (get row 0))))
       (print "could not find a person with that id")))
   True)
 
