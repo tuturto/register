@@ -46,12 +46,11 @@
   (print "")
   (let [[person-id (raw-input "enter id of person to edit: ")]
 	[row (load-person connection person-id)]]
-    (if row (do 
-	     (print "found person")
-	     (display-row row)
-	     (let [[new-name (raw-input "enter new name or press enter: ")]
-		   [new-phone (raw-input "enter new phone or press enter: ")]]
-	       (update-person connection (if new-name new-name (get row 1)) (if new-phone new-phone (get row 2)) (get row 0))))
+    (if row (do (print "found person")
+		(display-row row)
+		(let [[new-name (raw-input "enter new name or press enter: ")]
+		      [new-phone (raw-input "enter new phone or press enter: ")]]
+		  (update-person connection (if new-name new-name (get row 1)) (if new-phone new-phone (get row 2)) (get row 0))))
 	(print "could not find a person with that id")))
   True)
 
@@ -82,10 +81,9 @@
     (print "4. delete person")
     (print "5. quit")
     (print "")
-    (try  
-     (let [[selection (get menu-choices (raw-input "make a selection: "))]]
-       (selection connection))
-     (catch [e KeyError] (print "Please choose between 1 and 5") True))))
+    (try (let [[selection (get menu-choices (raw-input "make a selection: "))]]
+	   (selection connection))
+	 (catch [e KeyError] (print "Please choose between 1 and 5") True))))
 
 (if (= __name__ "__main__")
   (let [[connection (create-schema (get-connection))]]
