@@ -18,6 +18,9 @@
 ;;   along with register.  If not, see <http://www.gnu.org/licenses/>.
 
 (import sqlite3)
+(import sys)
+(import os.path)
+(.append sys.path (.abspath os.path "."))
 
 (defn get-connection []
   (do
@@ -34,6 +37,11 @@
   (let [[params (, person-name phone-number)]]
     (.execute connection "insert into person (name, phone) values (?, ?)" params)))
 
+(defn query-person [connection search-criteria]
+  (let [[search-term (+ "%" search-criteria "%")]
+        [search-param (, search-term search-term)]]
+    (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))))
+
 (defn add-person [connection]
   (print "********************")
   (print "    add person")
@@ -46,11 +54,6 @@
 (defn display-row [row]
   (print (get row 0) (get row 1) (get row 2)))
 
-(defn query-person [connection search-criteria]
-  (let [[search-term (+ "%" search-criteria "%")]
-        [search-param (, search-term search-term)]]
-    (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))))
-
 (defn search-person [connection]
   (print "********************")
   (print "    search person")
@@ -59,12 +62,16 @@
     (for (row (query-person connection search-criteria)) (display-row row)))
   True)
 
+(defn load-person [connection person-id]
+  (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))
+)
+
 (defn edit-person [connection]
   (print "********************")
   (print "     edit person")
   (print "")
   (let [[person-id (raw-input "enter id of person to edit: ")]
-        [row (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))]]
+        [row (load-person connection person-id)]]
     (if row (do 
         (print "found person")
         (display-row row)
