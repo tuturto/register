@@ -24,7 +24,7 @@
 
 (defn create-schema [connection]
   (.execute connection "create table if not exists person (name text not null, phone text)")
-  (get [connection] 0))
+  connection)
 
 (defn insert-person [connection person-name phone-number]
   (let [[params (, person-name phone-number)]]
