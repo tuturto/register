@@ -26,21 +26,24 @@
   (.execute connection "create table if not exists person (name text not null, phone text)")
   connection)
 
-(defn insert-person [connection person-name phone-number]
-  (let [[params (, person-name phone-number)]]
+(defn insert-person [connection person]
+  (let [[params (, (:name person) (:number person))]]
     (.execute connection "insert into person (name, phone) values (?, ?)" params)))
+
+(defn row-to-person [row]
+  {:id (get row 0) :name (get row 1) :number (get row 2)})
 
 (defn query-person [connection search-criteria]
   (let [[search-term (+ "%" search-criteria "%")]
         [search-param (, search-term search-term)]]
-    (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))))
+    (list-comp (row-to-person row) [row (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))])))
 
 (defn load-person [connection person-id]
-  (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id)))
+  (row-to-person (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))))
 
 (defn delete-person [connection person-id]
   (.execute connection "delete from person where OID=?" person-id))
 
-(defn update-person [connection name phone id]
-  (let [[params (, name phone id)]]
+(defn update-person [connection person]
+  (let [[params (, (:name person) (:number person) (:id person))]]
     (.execute connection "update person set name=?, phone=? where OID=?" params)))

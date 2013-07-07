@@ -26,18 +26,18 @@
   (print "")
   (let [[person-name (raw-input "enter name: ")]
         [phone-number (raw-input "enter phone number: ")]]
-    (insert-person connection person-name phone-number)
+    (insert-person connection {:name person-name :number phone-number :id None})
     True))
 
-(defn display-row [row]
-  (print (get row 0) (get row 1) (get row 2)))
+(defn display-person [person]
+  (print (:id person) (:name person) (:number person)))
 
 (defn search-person [connection]
   (print "********************")
   (print "    search person")
   (print "")
   (let [[search-criteria (raw-input "enter name or phone number: ")]]
-    (for (row (query-person connection search-criteria)) (display-row row)))
+    (for (person (query-person connection search-criteria)) (display-person person)))
   True)
 
 (defn edit-person [connection]
@@ -45,14 +45,17 @@
   (print "     edit person")
   (print "")
   (let [[person-id (raw-input "enter id of person to edit: ")]
-	[row (load-person connection person-id)]]
-    (if row (do (print "found person")
-		(display-row row)
-		(let [[new-name (raw-input "enter new name or press enter: ")]
-		      [new-phone (raw-input "enter new phone or press enter: ")]]
-		  (update-person connection (if new-name new-name (get row 1)) (if new-phone new-phone (get row 2)) (get row 0))))
-	(print "could not find a person with that id")))
-  True)
+	[person (load-person connection person-id)]]
+    (if person (do (print "found person")
+		   (display-person person)
+		   (let [[new-name (raw-input "enter new name or press enter: ")]
+			 [new-number (raw-input "enter new phone or press enter: ")]
+			 [edited-person {:id (:id person) 
+					 :name (if new-name new-name (:name person))
+					 :number (if new-number new-number (:number person))}]]
+			 (update-person connection edited-person)))
+	(print "could not find a person with that id"))
+  True))
 
 (defn remove-person [connection]
   (print "********************")
