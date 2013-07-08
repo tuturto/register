@@ -19,13 +19,16 @@
 
 (import [database [get-connection create-schema insert-person query-person]])
 (import [database [load-person delete-person update-person]])
+(import sys)
+
+(if (= (get sys.version-info 0) 3) (def key-input input) (def key-input raw-input))
 
 (defn add-person [connection]
   (print "********************")
   (print "    add person")
   (print "")
-  (let [[person-name (input "enter name: ")]
-        [phone-number (input "enter phone number: ")]]
+  (let [[person-name (key-input "enter name: ")]
+        [phone-number (key-input "enter phone number: ")]]
     (insert-person connection {:name person-name :number phone-number :id None})
     True))
 
@@ -36,7 +39,7 @@
   (print "********************")
   (print "    search person")
   (print "")
-  (let [[search-criteria (input "enter name or phone number: ")]]
+  (let [[search-criteria (key-input "enter name or phone number: ")]]
     (for (person (query-person connection search-criteria)) (display-person person)))
   True)
 
@@ -44,12 +47,12 @@
   (print "********************")
   (print "     edit person")
   (print "")
-  (let [[person-id (input "enter id of person to edit: ")]
+  (let [[person-id (key-input "enter id of person to edit: ")]
 	[person (load-person connection person-id)]]
     (if person (do (print "found person")
 		   (display-person person)
-		   (let [[new-name (input "enter new name or press enter: ")]
-			 [new-number (input "enter new phone or press enter: ")]
+		   (let [[new-name (key-input "enter new name or press enter: ")]
+			 [new-number (key-input "enter new phone or press enter: ")]
 			 [edited-person {:id (:id person) 
 					 :name (if new-name new-name (:name person))
 					 :number (if new-number new-number (:number person))}]]
@@ -61,7 +64,7 @@
   (print "********************")
   (print "   delete person")
   (print "")
-  (let [[person-id (input "enter id of person to delete: ")]]
+  (let [[person-id (key-input "enter id of person to delete: ")]]
     (delete-person connection person-id))
   True)
 
@@ -84,7 +87,7 @@
     (print "4. delete person")
     (print "5. quit")
     (print "")
-    (try (let [[selection (get menu-choices (input "make a selection: "))]]
+    (try (let [[selection (get menu-choices (key-input "make a selection: "))]]
 	   (selection connection))
 	 (catch [e KeyError] (print "Please choose between 1 and 5") True))))
 
