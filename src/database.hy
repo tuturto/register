@@ -28,7 +28,11 @@
 
 (defn insert-person [connection person]
   (let [[params (, (:name person) (:number person))]]
-    (.execute connection "insert into person (name, phone) values (?, ?)" params)))
+    (try (do (.execute connection "insert into person (name, phone) values (?, ?)" params)
+	     (.commit connection))
+	 (catch [e Exception] (print e)
+                (print "failed to add a person")
+		(.rollback connection)))))
 
 (defn row-to-person [row]
   {:id (get row 0) :name (get row 1) :number (get row 2)})
@@ -39,11 +43,19 @@
     (list-comp (row-to-person row) [row (.fetchall (.execute connection "select OID, name, phone from person where name like ? or phone like ?" search-param))])))
 
 (defn load-person [connection person-id]
-  (row-to-person (.fetchone (.execute connection "select OID, name, phone from person where OID=?" person-id))))
+  (row-to-person (.fetchone (.execute connection "select OID, name, phone from person where OID=?" (, person-id)))))
 
 (defn delete-person [connection person-id]
-  (.execute connection "delete from person where OID=?" person-id))
+  (try (do (.execute connection "delete from person where OID=?" (, person-id))
+           (.commit connection))
+       (catch [e Exception] (print e)
+	      (print "failed to delete person")
+	      (.rollback connection))))
 
 (defn update-person [connection person]
   (let [[params (, (:name person) (:number person) (:id person))]]
-    (.execute connection "update person set name=?, phone=? where OID=?" params)))
+    (try (do (.execute connection "update person set name=?, phone=? where OID=?" params)
+             (.commit connection))
+	 (catch [e Exception] (print e)
+                (print "failed to update person")
+		(.rollback connection)))))
