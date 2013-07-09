@@ -28,11 +28,9 @@
 
 (defn insert-person [connection person]
   (let [[params (, (:name person) (:number person))]]
-    (try (do (.execute connection "insert into person (name, phone) values (?, ?)" params)
-	     (.commit connection))
+    (try (with [connection] (.execute connection "insert into person (name, phone) values (?, ?)" params))
 	 (catch [e Exception] (print e)
-                (print "failed to add a person")
-		(.rollback connection)))))
+                (print "failed to add a person")))))
 
 (defn row-to-person [row]
   {:id (get row 0) :name (get row 1) :number (get row 2)})
@@ -46,16 +44,12 @@
   (row-to-person (.fetchone (.execute connection "select OID, name, phone from person where OID=?" (, person-id)))))
 
 (defn delete-person [connection person-id]
-  (try (do (.execute connection "delete from person where OID=?" (, person-id))
-           (.commit connection))
+  (try (with [connection] (.execute connection "delete from person where OID=?" (, person-id)))
        (catch [e Exception] (print e)
-	      (print "failed to delete person")
-	      (.rollback connection))))
+	      (print "failed to delete person"))))
 
 (defn update-person [connection person]
   (let [[params (, (:name person) (:number person) (:id person))]]
-    (try (do (.execute connection "update person set name=?, phone=? where OID=?" params)
-             (.commit connection))
+    (try (with [connection] (.execute connection "update person set name=?, phone=? where OID=?" params))
 	 (catch [e Exception] (print e)
-                (print "failed to update person")
-		(.rollback connection)))))
+                (print "failed to update person")))))
